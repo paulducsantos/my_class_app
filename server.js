@@ -4,6 +4,7 @@ var bodyParser        = require('body-parser');
 var session           = require('express-session');
 var Sequelize         = require('sequelize');
 var sha256            = require('sha256');
+var mysql             = require('mysql');
 var app               = express();
 
 const PORT = process.env.PORT || 8080;
@@ -18,13 +19,49 @@ var Student = sequelize.define('Student', {
   username: {
     type: Sequelize.STRING,
     validate: {
-      len: [1,30]
+      len: [6,30]
     }
   },
   password: {
     type: Sequelize.STRING,
+    notEmpty: true
+  },
+  firstname: {
+    type: Sequelize.STRING,
+    notEmpty: true
+  },
+    lastname: {
+    type: Sequelize.STRING,
+    notEmpty: true
   }
 });
+
+var Instructor = sequelize.define('Instructor', {
+  username: {
+    type: Sequelize.STRING,
+    validate: {
+      len: [6,30]
+    }
+  },
+  password: {
+    type: Sequelize.STRING,
+    notEmpty: true
+  },
+  teachOrTA: {
+    type: Sequelize.STRING,
+    notEmpty: true
+  },
+  firstname: {
+    type: Sequelize.STRING,
+    notEmpty: true
+  },
+    lastname: {
+    type: Sequelize.STRING,
+    notEmpty: true
+  }
+});
+
+Instructor.hasMany(Student);
 
 app.use(session({
   secret: 'have a gr8 day you are pr0',
@@ -36,11 +73,19 @@ app.use(session({
 }));
 
 app.get('/', function(req, res) {
-  res.render('register');
+  res.render('index');
 });
 
-app.get('/login', function(req, res) {
+app.get('/login/:studentOrInstructor', function(req, res) {
   res.render('login');
+});
+
+app.get('/student/register', function(req, res) {
+  res.render('student_register');
+});
+
+app.get('/instructor/register', function(req, res) {
+  res.render('register');
 });
 
 app.post('/register', function(req, res) {
