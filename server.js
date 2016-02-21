@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 8080;
 var sequelize = new Sequelize('Class_db', 'root', 'password');
 
 app.use(bodyParser.urlencoded({extended: false}));
+app.use('/static', express.static('public'));
 app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
@@ -19,7 +20,8 @@ var Student = sequelize.define('Student', {
   username: {
     type: Sequelize.STRING,
     validate: {
-      len: [6,30]
+      len: [6,30],
+      isUnique: true
     }
   },
   password: {
@@ -30,9 +32,19 @@ var Student = sequelize.define('Student', {
     type: Sequelize.STRING,
     notEmpty: true
   },
-    lastname: {
+  lastname: {
     type: Sequelize.STRING,
     notEmpty: true
+  },
+  teacherID: {
+    type: Sequelize.INTEGER,
+    notEmpty: true
+  },
+  taID: {
+    type: Sequelize.INTEGER,
+  },
+  taID2: {
+    type: Sequelize.INTEGER,
   }
 });
 
@@ -40,7 +52,8 @@ var Instructor = sequelize.define('Instructor', {
   username: {
     type: Sequelize.STRING,
     validate: {
-      len: [6,30]
+      len: [6,30],
+      isUnique: true
     }
   },
   password: {
@@ -81,29 +94,68 @@ app.get('/login/:studentOrInstructor', function(req, res) {
 });
 
 app.get('/student/register', function(req, res) {
-  res.render('student_register');
+  var data;
+  Instructor.findAll({
+    where: {
+      teachOrTA: 'teacher'
+    }
+  }).then(function(teacher) {
+    data = {
+      teacher: teacher
+    }
+    Instructor.findAll({
+      where: {
+        teachOrTA: 'ta'
+      }
+    }).then(function(ta) {
+      data.ta = ta;
+      res.render('student_register', data)
+    });
+  });
 });
 
 app.get('/instructor/register', function(req, res) {
-  res.render('register');
+  res.render('instructor_register');
 });
 
-app.post('/register', function(req, res) {
+app.get('/instructor/dashboard', function(req, res) {
+  res.render('success');
+});
+
+app.get('/student/dashboard', function(req, res) {
+  res.render('success');
+});
+
+app.post('/instructor/register', function(req, res) {
   var username = req.body.username;
+  var firstname = req.body.firstname;
+  var lastname = req.body.lastname;
+  var teachOrTA = req.body.teachOrTA;
   if(req.body.password.length > 7) {
     var password = sha256('porkchopsandwiches' + req.body.password);
-    User.create({username: username, password: password}).then(function(user) {
+    Instructor.create({username: username, password: password, firstname: firstname, lastname: lastname, teachOrTA: teachOrTA}).then(function(user) {
       req.session.authenticated = user;
-      res.redirect('/?msg=' + 'youre logged in');
+      res.redirect('/instructor/dashboard?msg=' + 'youre logged in');
     }).catch(function(err) {
       console.log(err);
       res.redirect('/?msg=' + err.message);
     });
   } else {
     res.render('fail');
-  }
+  } 
+});
 
-  
+app.post('/student/register', function(req, res) {
+  if(req.body.password.length > 7) {
+    req.body.password = sha256('porkchopsandwiches' + req.body.password);
+    Student.create(req.body).then(function(user) {
+      req.session.authenticated = user;
+      res.redirect('/student/dashboard?msg=' + 'youre logged in');
+    }).catch(function(err) {
+      console.log(err);
+      res.redirect('/?msg=' + err.message);
+    });
+  }
 });
 
 app.post('/login', function(req, res) {

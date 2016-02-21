@@ -1,0 +1,5 @@
+.navbar-brand>img {
+  display: block;
+  height: inherit;
+  margin-top: -15px;
+}
