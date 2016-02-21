@@ -3,3 +3,11 @@
   height: inherit;
   margin-top: -15px;
 }
+
+.login {
+  width: 90%;
+}
+
+.login-form {
+  margin-left: 5%;
+}
