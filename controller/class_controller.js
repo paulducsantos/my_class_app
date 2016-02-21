@@ -1,36 +1,11 @@
 var express           = require('express');
-var expressHandlebars = require('express-handlebars');
-var bodyParser        = require('body-parser');
-var session           = require('express-session');
 var Sequelize         = require('sequelize');
 var bcrypt            = require('bcryptjs');
-var mysql             = require('mysql');
-// var routes            = require('./controller/class_controller.js');
+var session           = require('express-session');
+var bodyParser        = require('body-parser');
 var app               = express();
 
-const PORT = process.env.PORT || 8080;
-
 var sequelize = new Sequelize('Class_db', 'root', 'password');
-
-app.use(bodyParser.urlencoded({extended: false}));
-app.use('/static', express.static('public'));
-app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
-
-// routes.classController(app);
-
-
-
-app.use(session({
-  secret: 'have a gr8 day you are pr0',
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 14
-  },
-  saveUninitialized: true,
-  resave: false
-}));
-
-
 
   //model
   var Student = sequelize.define('Student', {
@@ -157,7 +132,7 @@ app.use(passport.session());
   app.use(passport.initialize());
   app.use(passport.session());
 
-
+  module.exports.classController = function(app) {
 
 //routes
 app.get('/', function(req, res) {
@@ -265,9 +240,4 @@ app.get('/registration', function(req, res) {
     req.session.authenticated = false;
     res.redirect('/');
   });
-
-sequelize.sync().then(function() {
-  app.listen(PORT, function() {
-    console.log("LISTNEING!");
-  });
-});
+}

@@ -1,0 +1,98 @@
+<br />
+<div>
+
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Student</a></li>
+    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Instructor</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="home">
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <form method="post" action="/student/register">
+            <br />
+            <div class="form-group">
+              <label for="exampleInputEmail1">Username</label>
+              <input type="text" class="form-control" id="exampleInputEmail1" name="username">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Password</label>
+              <input type="password" class="form-control" id="exampleInputEmail1" name="password">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">First Name</label>
+              <input type="text" class="form-control" id="exampleInputEmail1" name="lastname">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Last Name</label>
+              <input type="text" class="form-control" id="exampleInputEmail1" name="firstname">
+            </div>
+            <h5>Select your teacher</h5>
+            <select class="form-control" name="teacherID">
+            {{#each teacher}}
+              <option value={{id}}>{{firstname}} {{lastname}}</option>
+            {{/each}}
+            </select>
+            <h5>Select your TA</h5>
+            <select class="form-control" name="taID">
+            {{#each ta}}
+              <option value={{id}}>{{firstname}} {{lastname}}</option>
+            {{/each}}
+            </select>
+            <h5>Select your TA</h5>
+            <select class="form-control" name="taID2">
+            {{#each ta}}
+              <option value={{id}}>{{firstname}} {{lastname}}</option>
+            {{/each}}
+            </select>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="profile">
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <form method="post" action="/instructor/register">
+            <br />
+            <div class="form-group">
+              <label for="exampleInputEmail1">Username</label>
+              <input type="text" class="form-control" id="exampleInputEmail1" name="username">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Password</label>
+              <input type="password" class="form-control" id="exampleInputEmail1" name="password">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">First Name</label>
+              <input type="text" class="form-control" id="exampleInputEmail1" name="firstname">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Last Name</label>
+              <input type="text" class="form-control" id="exampleInputEmail1" name="lastname">
+            </div>
+            <div class="radio">
+              <label>
+                <input type="radio" name="teachOrTA" id="optionsRadios1" value="teacher" checked>
+                Teacher
+              </label>
+            </div>
+            <div class="radio">
+              <label>
+                <input type="radio" name="teachOrTA" id="optionsRadios2" value="ta">
+                TA
+              </label>
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="messages">...</div>
+    <div role="tabpanel" class="tab-pane" id="settings">...</div>
+  </div>
+
+</div>
