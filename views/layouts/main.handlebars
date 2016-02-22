@@ -32,8 +32,14 @@
         <ul class="nav navbar-nav pull-right">
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <form method="post" action="/login">
+            <ul class="dropdown-menu" id="login-dropdown">
+              <label class="radio-inline login-form">
+                <input type="radio" name="radiobtn" value="student" checked="checked"> Student
+              </label>
+              <label class="radio-inline">
+                <input type="radio" name="radiobtn" value="instructor"> TA
+              </label>
+              <form method="post" action="/login/student" id="form-login">
                 <div class="form-group">
                   <label for="exampleInputEmail1" class="login-form">Username</label>
                   <input type="text" class="form-control login login-form" id="exampleInputEmail1" placeholder="username" name="username">

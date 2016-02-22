@@ -24,12 +24,12 @@ app.set('view engine', 'handlebars');
 app.use(session({
   secret: 'have a gr8 day you are pr0',
   cookie: {
+    secure: false,
     maxAge: 1000 * 60 * 60 * 24 * 14
   },
   saveUninitialized: true,
-  resave: false
+  resave: true
 }));
-
 
 
   //model
@@ -121,10 +121,35 @@ app.use(passport.session());
       done(null, { id: id, username: id })
   });
   //passport use methed as callback when being authenticated
-  passport.use(new passportLocal(
+  passport.use('student', new passportLocal(
     function(username, password, done) {
     //check password in db
       Student.findOne({
+        where: {
+          username: username
+        }
+      }).then(function(user) {
+          //check password against hash
+          if(user){
+            bcrypt.compare(password, user.dataValues.password, function(err, user) {
+              if (user) {
+                    //if password is correct authenticate the user with cookie
+                    done(null, { id: username, username: username });
+                  } else{
+                    done(null, null);
+                  }
+                });
+          } else {
+            done(null, null);
+          }
+        });
+      }
+    ));
+
+  passport.use('instructor', new passportLocal(
+    function(username, password, done) {
+    //check password in db
+      Instructor.findOne({
         where: {
           username: username
         }
@@ -146,14 +171,10 @@ app.use(passport.session());
             done(null, null);
           }
         });
-    }));
+      }
+    ));
 
-  app.use(require('express-session')({
-    secret: 'crackalackin',
-    resave: true,
-    saveUninitialized: true,
-      cookie : { secure : false, maxAge : (4 * 60 * 60 * 1000) }, // 4 hours
-    }));
+
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -161,7 +182,11 @@ app.use(passport.session());
 
 //routes
 app.get('/', function(req, res) {
+  if(req.isAuthenticated()) {
+    res.render('index', {layout: 'loggedIn'});
+  } else {
   res.render('index');
+  }
 });
 
 app.get('/login/:studentOrInstructor', function(req, res) {
@@ -193,12 +218,31 @@ app.get('/registration', function(req, res) {
   //   res.render('register');
   // });
 
-  app.get('/instructor/dashboard', function(req, res) {
-    res.render('success');
+
+  //MIDDLEWARE FOR LOGGING IN
+
+  var checkAuth = function(req, res, next) {
+    if (req.isAuthenticated()) {
+      next();
+    } else {
+      res.redirect('/');
+    }
+  }
+
+  app.get('/instructor/dashboard', checkAuth, function(req, res) {
+    res.render('instructorDashboard', {
+      layout: 'loggedIn',
+      user: req.user,
+      isAuthenticated: req.isAuthenticated()
+    });
   });
 
-  app.get('/student/dashboard', function(req, res) {
-    res.render('success');
+  app.get('/student/dashboard', checkAuth, function(req, res) {
+    res.render('studentDashboard', {
+      layout: 'loggedIn',
+      user: req.user,
+      isAuthenticated: req.isAuthenticated()
+    });
   });
 
   app.post('/instructor/register', function(req, res) {
@@ -242,9 +286,13 @@ app.get('/registration', function(req, res) {
   //   });
   // });
 
-  app.post('/login',
-    passport.authenticate('local', { successRedirect: '/secret',
+  app.post('/login/student',
+    passport.authenticate('student', { successRedirect: '/student/dashboard',
                                      failureRedirect: '/?msg=Login Credentials do not work'}));
+
+  app.post('/login/instructor',
+  passport.authenticate('instructor', { successRedirect: '/instructor/dashboard',
+                                   failureRedirect: '/?msg=Login Credentials do not work'}));
 
   app.get('/secret', function(req, res){
     res.render('secret', {
@@ -261,9 +309,13 @@ app.get('/registration', function(req, res) {
   //   }
   // });
 
-  app.get('/logout', function(req, res) {
-    req.session.authenticated = false;
-    res.redirect('/');
+  app.get('/logout', function (req, res){
+    req.session.destroy(function (err) {
+      res.render('logout');
+      setTimeout(function(req, res) {
+        res.render('/')
+      }, 5000);
+    });
   });
 
 sequelize.sync().then(function() {
