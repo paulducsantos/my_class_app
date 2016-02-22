@@ -214,9 +214,6 @@ app.get('/registration', function(req, res) {
   });
 });
 
-  // app.get('/registration', function(req, res) {
-  //   res.render('register');
-  // });
 
 
   //MIDDLEWARE FOR LOGGING IN
@@ -229,6 +226,11 @@ app.get('/registration', function(req, res) {
     }
   }
 
+  // function ensureOnlyCompany(req, res, next) {
+  //   if (isCompany(req.user)) { return next(); }
+  //   res.redirect('/login')
+  // }
+
   app.get('/instructor/dashboard', checkAuth, function(req, res) {
     res.render('instructorDashboard', {
       layout: 'loggedIn',
@@ -238,6 +240,7 @@ app.get('/registration', function(req, res) {
   });
 
   app.get('/student/dashboard', checkAuth, function(req, res) {
+    console.log(req.user);
     res.render('studentDashboard', {
       layout: 'loggedIn',
       user: req.user,
@@ -265,26 +268,6 @@ app.get('/registration', function(req, res) {
     });
   });
 
-  // app.post('/login', function(req, res) {
-  //   var username = req.body.username;
-  //   var password = sha256('porkchopsandwiches' + req.body.password);
-
-  //   User.findOne({
-  //     where: {
-  //       username: username,
-  //       password: password
-  //     }
-  //   }).then(function(user) {
-  //     if(user) {
-  //       req.session.authenticated = user;
-  //       res.redirect('/?msg=login successful');
-  //     } else {
-  //       res.redirect('/?msg=You failed at life');
-  //     }
-  //   }).catch(function(err) {
-  //     throw err;
-  //   });
-  // });
 
   app.post('/login/student',
     passport.authenticate('student', { successRedirect: '/student/dashboard',
@@ -301,19 +284,12 @@ app.get('/registration', function(req, res) {
     });
   });
 
-  // app.get('/success', function(req, res) {
-  //   if(req.session.authenticated) {
-  //     res.render('success');
-  //   } else {
-  //     res.render('fail');
-  //   }
-  // });
 
   app.get('/logout', function (req, res){
     req.session.destroy(function (err) {
       res.render('logout');
-      setTimeout(function(req, res) {
-        res.render('/')
+      setTimeout(function() {
+        res.redirect('/');
       }, 5000);
     });
   });
